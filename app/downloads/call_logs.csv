@@ -1,0 +1,3 @@
+ticket;start_date_time;end_date_time;description;client;client_id;employee;employee_id;dt_employee;dt_client;category
+1;2018-10-09 13:55:26;2018-10-09 18:15:26;primer000000 sss registro ;alvaro niño;1011464;alvaro niño;10114644;Cedula;Cedula;PQRs
+2;2018-10-09 13:55:26;2018-10-09 18:15:26;segundo r000000 sss registro ;alvaro niño;1011464;alvaro niño;10114644;Cedula;Cedula;PQRs
