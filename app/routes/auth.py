@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, request, jsonify, send_file, session, send_from_directory
 from sqlalchemy import exc
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import create_access_token, jwt_required
 from app import db, cross_origin
 from app.models import User, Role
 
@@ -22,11 +23,22 @@ def login():
             'message': "Email incorrecto o contraseña erronea",
             'status': 401
         })
-
     return jsonify({
         'message': "Login exitoso",
         'status': 200,
-        'user': user.to_json()
+        'user': user.to_json(),
+        'token': create_access_token(identity=user.id)
+    })
+
+
+@auth.route('/logged_in', methods=['GET'])
+@cross_origin()
+@jwt_required()
+def logged_in():
+    return jsonify({
+        'message': "Usuario logueado",
+        'status': 200,
+        'is_logged_in': True
     })
 
 
@@ -41,6 +53,7 @@ def signup():
     telephone = data['telephone']
     document_type_id = data['document_type_id']
     id = data['id']
+    role = data['role_name']
 
     try:
         new_user = User(
@@ -52,15 +65,15 @@ def signup():
             password=generate_password_hash(password, method='sha256'),
             id=id
         )
-        role = Role.query.filter_by(name='Empleado').first()
+        role = Role.query.filter_by(name=role).first()
         new_user.roles.append(role)
         db.session.add(new_user)
         db.session.commit()
-
         return jsonify({
             'message': "Usuario creado exitosamente",
             'status': 200,
-            'user': new_user.to_json()
+            'user': new_user.to_json(),
+            'token': create_access_token(identity=new_user.id)
         })
     except (Exception, exc.SQLAlchemyError) as e:
         return jsonify({
@@ -99,11 +112,14 @@ def get_users(user_type="all"):
         })
 
 
-@auth.route('/users/<int:user_id>', methods=['DELETE'])
+@auth.route('/users/<int:type_document_id>/<int:user_id>', methods=['DELETE'])
 @cross_origin()
-def delete_user(user_id):
+def delete_user(user_id, type_document_id):
     try:
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(
+            id=user_id,
+            document_type_id=type_document_id
+        ).first()
         db.session.delete(user)
         db.session.commit()
         return jsonify({
@@ -118,11 +134,14 @@ def delete_user(user_id):
         })
 
 
-@auth.route('/users/<int:user_id>', methods=['PUT'])
+@auth.route('/users/<int:type_document_id>/<int:user_id>', methods=['PUT'])
 @cross_origin()
-def update_user(user_id):
+def update_user(user_id, type_document_id):
     try:
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(
+            id=user_id, 
+            document_type_id=type_document_id
+        ).first()
         data = request.json
         user.email = data['email']
         user.name = data['name']
@@ -134,7 +153,8 @@ def update_user(user_id):
         db.session.commit()
         return jsonify({
             'message': "Usuario actualizado exitosamente",
-            'status': 200
+            'status': 200,
+            'user': user.to_json()
         })
     except (Exception, exc.SQLAlchemyError) as e:
         return jsonify({

@@ -5,6 +5,9 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATION = False
     SECRET_KEY = 'secret-key-goes-here'
     CORS_HEADERS = 'Content-Type'
+    JWTSECRETKEY = 'secret-key-jwt'
+    JWT_ALGORITHM = 'HS256'
+
 
 class ProductionConfig(Config):
     ENV = 'production'
