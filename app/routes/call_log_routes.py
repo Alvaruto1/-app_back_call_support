@@ -59,8 +59,7 @@ def create_call_log():
 @call_log.route('/call_logs/<user_type>/<int:document_type_id>/<int:id_user>', methods=['GET'])
 @call_log.route('/call_logs/<user_type>', methods=['GET'])
 @cross_origin()
-def get_call_logs(user_type="all", id_user=-1, document_type_id=-1):
-    call_logs = None
+def get_call_logs(user_type, id_user=-1, document_type_id=-1):    
     try:
         if user_type == "all":
             call_logs = CallLog.query.all()
