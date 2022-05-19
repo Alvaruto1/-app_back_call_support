@@ -20,14 +20,12 @@ def create_call_log():
     category_id = data['category_id']
     start_date_time = datetime.strptime(
         data['start_date_time'],
-        '%d/%m/%y %H:%M:%S'
+        '%d/%m/%Y %H:%M:%S'
     )
     end_date_time = datetime.strptime(
         data['end_date_time'],
-        '%d/%m/%y %H:%M:%S'
+        '%d/%m/%Y %H:%M:%S'
     )
-
-    print(start_date_time, end_date_time)
 
     try:
         new_call_log = CallLog(
